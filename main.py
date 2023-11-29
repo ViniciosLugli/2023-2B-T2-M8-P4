@@ -7,6 +7,11 @@ from langchain.document_loaders import TextLoader
 from langchain.text_splitter import CharacterTextSplitter
 from langchain.vectorstores import Chroma
 from dotenv import load_dotenv
+import os
+
+# Workaround for SSL error on huggingface ( CERTIFICATE_VERIFY_FAILED )
+os.environ['CURL_CA_BUNDLE'] = ''
+
 load_dotenv()
 
 
@@ -14,7 +19,7 @@ class Document:
     def __init__(self, path):
         self.path = path
         self.text_loader = TextLoader(self.path)
-        self.text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
+        self.text_splitter = CharacterTextSplitter(chunk_size=1200, chunk_overlap=0)
         self.documents = self.text_splitter.split_documents(self.text_loader.load())
         self.sentence_embeddings = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
         self.vector_store = Chroma.from_documents(self.documents, self.sentence_embeddings)
@@ -30,7 +35,7 @@ class Chatbot:
         self.llm = OpenAI(model="gpt-3.5-turbo-instruct", max_tokens=512)
 
     def get_chat_prompt_template(self):
-        return ChatPromptTemplate.from_template(MAIN_PROMPT)
+        return ChatPromptTemplate.from_template(Chatbot.MAIN_PROMPT)
 
     def get_model(self):
         return self.llm
