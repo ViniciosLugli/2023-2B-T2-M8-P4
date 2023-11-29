@@ -29,7 +29,7 @@ class Document:
 
 
 class Chatbot:
-    MAIN_PROMPT = """You are a warehouse assistant and must help with whatever is needed based on the context: {context}. Question {question}"""
+    MAIN_PROMPT = """You are a warehouse assistant and must help with whatever is needed based on:{context}. {question}"""
 
     def __init__(self):
         self.llm = OpenAI(model="gpt-3.5-turbo-instruct", max_tokens=512)
@@ -44,9 +44,9 @@ class Chatbot:
         self.chain = ({"context": document_instance.get_retriever(), "question": RunnablePassthrough()} |
                       self.get_chat_prompt_template() | self.get_model())
 
-    def chatbot_response(self, prompt):
+    def chatbot_response(self, message, history):
         response = ""
-        for chunck in self.chain.stream(prompt):
+        for chunck in self.chain.stream(message):
             response += chunck
             yield response
 
@@ -60,6 +60,8 @@ class ChatInterface:
             self.chatbot.chatbot_response,
             examples=[
                 "Who is allowed to operate a lathe? What protective gear should be used to do it?",
+                "What is the policy regarding fooling around and practical jokes in the workshop?",
+                "Why is it important to wash hands after using equipment and materials in the workshop?"
             ],
             title="Chatbot",
         )
@@ -70,6 +72,5 @@ if __name__ == "__main__":
     document = Document("./assets/document.txt")
     chatbot_instance = Chatbot()
     chatbot_instance.generate_chain(document)
-    print(document.get_retriever())
     chat_interface_instance = ChatInterface(chatbot_instance)
     chat_interface_instance.launch()
