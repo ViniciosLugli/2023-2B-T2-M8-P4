@@ -33,3 +33,4 @@ python main.py
 3. Ask questions related to inventory management, and the chatbot will provide assistance.
 
 ## Demo
+[demo.webm](https://github.com/ViniciosLugli/2023-2B-T2-M8-P4/assets/40807526/707840df-c86e-49b4-9bb4-f1b3fa61a8ec)
